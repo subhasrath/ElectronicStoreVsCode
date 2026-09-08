@@ -38,20 +38,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setAbout(userDto.getAbout());
+        user.setGender(userDto.getGender());
+        user.setPassword(userDto.getPassword());
+        user.setImageName(userDto.getImageName());
+        User updatedUser = userRepository.save(user);
+        return entityToDto(updatedUser);
+    
     }
 
     @Override
     public void deleteUser(String userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        userRepository.delete(user);
     }
 
     @Override
     public UserDto getUserById(String userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        return entityToDto(user);
     }
 
     @Override
