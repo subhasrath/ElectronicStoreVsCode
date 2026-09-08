@@ -1,6 +1,8 @@
 package com.subhas.ElectronicStore.service.impl;
 
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -64,20 +66,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllUsers'");
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(this :: entityToDto)
+                .toList();
     }
 
     @Override
     public UserDto getUserByEmail(String email) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserByEmail'");
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not Found with given Email"));
+        return entityToDto(user);
     }
 
     @Override
     public List<UserDto> searchUser(String keyword) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchUser'");
+        List<User> user  = userRepository.findByNameContaining(keyword);
+        return user.stream().map(this::entityToDto).toList();
     }
 
     private UserDto entityToDto(User savedUser) {
