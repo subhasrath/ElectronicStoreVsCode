@@ -1,9 +1,8 @@
 package com.subhas.ElectronicStore.service.impl;
 
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.UserDto;
@@ -15,9 +14,11 @@ import com.subhas.ElectronicStore.service.UserService;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -85,27 +86,29 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto entityToDto(User savedUser) {
-        return UserDto.builder()
-                .userId(savedUser.getUserId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .password(savedUser.getPassword())
-                .gender(savedUser.getGender())
-                .about(savedUser.getAbout())
-                .imageName(savedUser.getImageName())
-                .build();
+        // return UserDto.builder()
+        //         .userId(savedUser.getUserId())
+        //         .name(savedUser.getName())
+        //         .email(savedUser.getEmail())
+        //         .password(savedUser.getPassword())
+        //         .gender(savedUser.getGender())
+        //         .about(savedUser.getAbout())
+        //         .imageName(savedUser.getImageName())
+        //         .build();
+        return modelMapper.map(savedUser, UserDto.class);
     }
 
     private User dtoToEntity(UserDto userDto) {
-        return User.builder()
-                .userId(userDto.getUserId())
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
-                .gender(userDto.getGender())
-                .about(userDto.getAbout())
-                .imageName(userDto.getImageName())
-                .build();
+        // return User.builder()
+        //         .userId(userDto.getUserId())
+        //         .name(userDto.getName())
+        //         .email(userDto.getEmail())
+        //         .password(userDto.getPassword())
+        //         .gender(userDto.getGender())
+        //         .about(userDto.getAbout())
+        //         .imageName(userDto.getImageName())
+        //         .build();
+        return modelMapper.map(userDto, User.class);
     }
 
     
