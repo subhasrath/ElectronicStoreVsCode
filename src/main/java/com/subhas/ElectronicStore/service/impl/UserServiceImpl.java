@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.UserDto;
 import com.subhas.ElectronicStore.entity.User;
+import com.subhas.ElectronicStore.exception.ResourceNotFoundException;
 import com.subhas.ElectronicStore.repository.UserRepository;
 import com.subhas.ElectronicStore.service.UserService;
 
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
         user.setAbout(userDto.getAbout());
@@ -55,13 +56,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
         userRepository.delete(user);
     }
 
     @Override
     public UserDto getUserById(String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not Found with Given ID"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
         return entityToDto(user);
     }
 

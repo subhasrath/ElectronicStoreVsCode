@@ -7,6 +7,8 @@ import com.subhas.ElectronicStore.dto.UserDto;
 import com.subhas.ElectronicStore.payload.ApiResponseMessage;
 import com.subhas.ElectronicStore.service.UserService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -31,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping()
-        public ResponseEntity<String> createUser(@RequestBody UserDto userDto) {
+        public ResponseEntity<String> createUser(@Valid @RequestBody UserDto userDto) {
             userService.createUser(userDto);
             return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
     }
@@ -67,7 +69,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{userId}")
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @PathVariable String userId) {
+    public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable String userId) {
         UserDto updatedUser = userService.updateUser(userDto, userId);
         return ResponseEntity.ok(updatedUser);
     }
