@@ -1,5 +1,7 @@
 package com.subhas.ElectronicStore.dto;
 
+import com.subhas.ElectronicStore.util.ImageNameValid;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -41,6 +43,6 @@ public class UserDto {
 
     @NotBlank (message = "about can not be empty!!")
     private String about;
-    
+    @ImageNameValid
     private String imageName;
 }

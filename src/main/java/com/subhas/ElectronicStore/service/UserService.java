@@ -2,7 +2,9 @@ package com.subhas.ElectronicStore.service;
 
 import java.util.List;
 
+
 import com.subhas.ElectronicStore.dto.UserDto;
+import com.subhas.ElectronicStore.payload.PageableResponse;
 
 
 public interface UserService {
@@ -14,7 +16,7 @@ public interface UserService {
     
     UserDto getUserById(String userId);
     
-    List<UserDto> getAllUsers();
+    PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir);
 
     UserDto getUserByEmail(String email);
 

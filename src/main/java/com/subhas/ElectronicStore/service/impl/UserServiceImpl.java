@@ -2,12 +2,18 @@ package com.subhas.ElectronicStore.service.impl;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.UserDto;
 import com.subhas.ElectronicStore.entity.User;
 import com.subhas.ElectronicStore.exception.ResourceNotFoundException;
+import com.subhas.ElectronicStore.helper.Helper;
+import com.subhas.ElectronicStore.payload.PageableResponse;
 import com.subhas.ElectronicStore.repository.UserRepository;
 import com.subhas.ElectronicStore.service.UserService;
 
@@ -67,11 +73,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(this :: entityToDto)
-                .toList();
+    public PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        
+        Page <User> page = userRepository.findAll(pageable);
+
+        PageableResponse<UserDto> response =  Helper.getPageableResponse(page, UserDto.class);
+        return response;
     }
 
     @Override
@@ -85,7 +95,7 @@ public class UserServiceImpl implements UserService {
         List<User> user  = userRepository.findByNameContaining(keyword);
         return user.stream().map(this::entityToDto).toList();
     }
-
+ 
     private UserDto entityToDto(User savedUser) {
         // return UserDto.builder()
         //         .userId(savedUser.getUserId())
