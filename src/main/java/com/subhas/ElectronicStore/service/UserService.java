@@ -1,5 +1,6 @@
 package com.subhas.ElectronicStore.service;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -12,7 +13,7 @@ public interface UserService {
     
     UserDto updateUser(UserDto user, String userId);
     
-    void deleteUser(String userId);
+    void deleteUser(String userId) throws IOException;
     
     UserDto getUserById(String userId);
     
