@@ -21,7 +21,7 @@ public class Category {
     @Column (name = "category_title", length = 60, nullable = false)
     private String title;
     
-    @Column (name = "category_desc", length = 50)
+    @Column (name = "category_desc", length = 70)
     private String description;
     private String coverImage;
 }

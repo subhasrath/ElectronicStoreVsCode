@@ -1,5 +1,7 @@
 package com.subhas.ElectronicStore.service.impl;
 
+import java.util.UUID;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -28,6 +30,8 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public CategoryDto create(CategoryDto categoryDto) {
+        String categoryId = UUID.randomUUID().toString();
+        categoryDto.setCategoryId(categoryId);
         Category category = mapper.map(categoryDto, Category.class);
         Category savedCategory = categoryRepository.save(category);
         return mapper.map(savedCategory, CategoryDto.class);
