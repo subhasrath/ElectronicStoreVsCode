@@ -16,4 +16,6 @@ public interface CategoryService {
 
     // get single category
     CategoryDto singlecategory(String categoryId);
+
+    PageableResponse<CategoryDto> searchCategoryByName(String keyword, int pageNumber, int pageSize, String sortBy, String sortDir);
 }

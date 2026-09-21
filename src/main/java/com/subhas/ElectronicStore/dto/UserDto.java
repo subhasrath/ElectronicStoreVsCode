@@ -43,6 +43,7 @@ public class UserDto {
 
     @NotBlank (message = "about can not be empty!!")
     private String about;
+    
     @ImageNameValid
     private String imageName;
 }

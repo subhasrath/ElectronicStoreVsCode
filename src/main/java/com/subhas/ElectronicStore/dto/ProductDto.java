@@ -1,32 +1,27 @@
-package com.subhas.ElectronicStore.entity;
+package com.subhas.ElectronicStore.dto;
 
 import java.util.Date;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 @Getter 
 @Setter 
 @NoArgsConstructor 
 @AllArgsConstructor 
 @Builder 
-@Entity 
-@Table(name = "products")
-public class Product {
-    @Id 
+public class ProductDto {
     private String productId;
+    @NotBlank 
+    @Size (min = 2, message = "Product Name should be minimunm of two characters")
     private String productName;
-    @Column (length = 10000)
+    @Size (min = 2, max = 10000, message = "description should be minimum 2 characters and maximum of 10000 characters")
     private String description;
     private int price;
-    private int discountedPrice;
     private int quantity;
     private Date addedDate;
     private boolean live;

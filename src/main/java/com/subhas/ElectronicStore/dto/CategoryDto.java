@@ -1,7 +1,8 @@
 package com.subhas.ElectronicStore.dto;
 
-import jakarta.validation.constraints.Min;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +16,7 @@ public class CategoryDto {
 
     private String categoryId;
     @NotBlank
-    @Min(value = 4, message = "title must be of minimum 4 characters")
+    @Size(min = 3, message = "title must be of minimum 4 characters")
     private String title;
     @NotBlank (message = "Description required !!")
     private String description;
