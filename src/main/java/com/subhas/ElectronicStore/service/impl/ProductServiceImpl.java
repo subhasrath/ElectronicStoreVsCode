@@ -1,21 +1,42 @@
 package com.subhas.ElectronicStore.service.impl;
 
+import org.modelmapper.ModelMapper;
+
 import com.subhas.ElectronicStore.dto.ProductDto;
+import com.subhas.ElectronicStore.entity.Product;
 import com.subhas.ElectronicStore.payload.PageableResponse;
+import com.subhas.ElectronicStore.repository.ProductRepository;
 import com.subhas.ElectronicStore.service.ProductService;
 
 public class ProductServiceImpl implements ProductService{
 
+    private ModelMapper mapper;
+    private final ProductRepository productRepository;
+
+    public ProductServiceImpl(ModelMapper mapper, ProductRepository productRepository){
+        this.mapper = mapper;
+        this.productRepository = productRepository;
+    }
+
     @Override
     public ProductDto create(ProductDto productDto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'create'");
+        Product product = mapper.map(productDto, Product.class);
+        Product savedProduct = productRepository.save(product);
+        return mapper.map(savedProduct, ProductDto.class);
+
     }
 
     @Override
     public ProductDto update(ProductDto productDto, String productId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        Product product = mapper.map(productDto, Product.class);
+        product.setProductName(productDto.getProductName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setQuantity(productDto.getQuantity());
+        product.setAddedDate(productDto.getAddedDate());
+        product.setLive(productDto.isLive());
+        product.setStock(productDto.isStock());
+        
     }
 
     @Override
