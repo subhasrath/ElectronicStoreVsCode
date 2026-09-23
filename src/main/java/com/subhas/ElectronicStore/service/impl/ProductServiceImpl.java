@@ -1,4 +1,5 @@
 package com.subhas.ElectronicStore.service.impl;
+import java.util.Date;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -28,9 +29,10 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ProductDto create(ProductDto productDto) {
-        String productId = UUID.randomUUID().toString();
         Product product = mapper.map(productDto, Product.class);
+        String productId = UUID.randomUUID().toString();
         product.setProductId(productId);
+        product.setAddedDate(new Date());
         Product savedProduct = productRepository.save(product);
         return mapper.map(savedProduct, ProductDto.class);
 
@@ -42,7 +44,7 @@ public class ProductServiceImpl implements ProductService{
        product.setProductName(productDto.getProductName());
        product.setDescription(productDto.getDescription());
        product.setPrice(productDto.getPrice());
-       product.setQuantity(productDto.getPrice());
+       product.setQuantity(productDto.getQuantity());
        product.setAddedDate(productDto.getAddedDate());
        product.setLive(productDto.isLive());
        product.setStock(productDto.isStock());
@@ -57,8 +59,8 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public PageableResponse<ProductDto> getAllProducts(int pageNumber, int pageSize, String sortDir, String sortBy) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
+    public PageableResponse<ProductDto> getAllProducts(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
         PageRequest pageable = PageRequest.of(pageNumber,pageSize, sort);
         Page<Product> page = productRepository.findAll(pageable);
 
@@ -77,7 +79,7 @@ public class ProductServiceImpl implements ProductService{
     public PageableResponse<ProductDto> searchProducts(int pageNumber, int pageSize, String sortDir, String sortBy,
             String subTitle) {
 
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
+        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
         PageRequest pageable = PageRequest.of(pageNumber,pageSize, sort);
         Page<Product> page = productRepository.findByProductNameContaining(subTitle, pageable);
         PageableResponse<ProductDto> pageableResponse = Helper.getPageableResponse(page, ProductDto.class);
@@ -86,9 +88,19 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public PageableResponse<ProductDto> showLiveProducts(int pageNumber, int pageSize, String sortDir, String sortBy) {
-        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
+        Sort sort = (sortDir.equalsIgnoreCase("asc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
         PageRequest pageable = PageRequest.of(pageNumber,pageSize, sort);
         Page<Product> page = productRepository.findByLive(true, pageable);
+        PageableResponse<ProductDto> pageableResponse = Helper.getPageableResponse(page, ProductDto.class);
+        return pageableResponse;
+    }
+
+    @Override
+    public PageableResponse<ProductDto> showStockedProducts(int pageNumber, int pageSize, String sortDir,
+            String sortBy) {
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).ascending()) : (Sort.by(sortBy).descending());
+        PageRequest pageable = PageRequest.of(pageNumber,pageSize, sort);
+        Page<Product> page = productRepository.findByStock(true, pageable);
         PageableResponse<ProductDto> pageableResponse = Helper.getPageableResponse(page, ProductDto.class);
         return pageableResponse;
     }

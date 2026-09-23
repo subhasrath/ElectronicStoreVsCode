@@ -2,6 +2,8 @@ package com.subhas.ElectronicStore.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,8 @@ public class ProductDto {
     private String description;
     private int price;
     private int quantity;
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Kolkata")
     private Date addedDate;
     private boolean live;
     private boolean stock;

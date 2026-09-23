@@ -11,4 +11,5 @@ public interface ProductService{
     void deleteProduct(String productId);
     PageableResponse<ProductDto> searchProducts(int pageNumber, int pageSize, String sortDir, String sortBy, String subTitle);
     PageableResponse<ProductDto> showLiveProducts(int pageNumber, int pageSize, String sortDir, String sortBy);
+    PageableResponse<ProductDto> showStockedProducts(int pageNumber, int pageSize, String sortDir, String sortBy);
 }
