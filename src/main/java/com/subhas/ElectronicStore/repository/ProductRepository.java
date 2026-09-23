@@ -1,15 +1,17 @@
 package com.subhas.ElectronicStore.repository;
 
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+
 import com.subhas.ElectronicStore.entity.Product;
-import com.subhas.ElectronicStore.payload.PageableResponse;
+
 
 public interface ProductRepository extends JpaRepository<Product, String>{
-    PageableResponse<Product> findByTitleContaining(String subTitle, Pageable pageable);
+    Page<Product> findByProductNameContaining(String title, Pageable pageable);
 
-    PageableResponse<Product> findByLive(Pageable pageable);
+    Page<Product> findByLive(boolean live, Pageable pageable);
     
 }
