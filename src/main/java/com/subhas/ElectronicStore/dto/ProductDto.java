@@ -24,10 +24,13 @@ public class ProductDto {
     @Size (min = 2, max = 10000, message = "description should be minimum 2 characters and maximum of 10000 characters")
     private String description;
     private int price;
+    private int discountedPrice;
     private int quantity;
     
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Kolkata")
     private Date addedDate;
+
     private boolean live;
     private boolean stock;
+    private String productImage;
 }

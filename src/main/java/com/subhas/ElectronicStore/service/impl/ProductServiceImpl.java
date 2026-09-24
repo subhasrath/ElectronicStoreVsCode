@@ -1,8 +1,16 @@
 package com.subhas.ElectronicStore.service.impl;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +34,11 @@ public class ProductServiceImpl implements ProductService{
         this.mapper = mapper;
         this.productRepository = productRepository;
     }
+    @Value("${product.image.path}")
+    String imagePath;
+
+    Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+
 
     @Override
     public ProductDto create(ProductDto productDto) {
@@ -44,10 +57,12 @@ public class ProductServiceImpl implements ProductService{
        product.setProductName(productDto.getProductName());
        product.setDescription(productDto.getDescription());
        product.setPrice(productDto.getPrice());
+       product.setDiscountedPrice(productDto.getDiscountedPrice());
        product.setQuantity(productDto.getQuantity());
        product.setAddedDate(productDto.getAddedDate());
        product.setLive(productDto.isLive());
        product.setStock(productDto.isStock());
+       product.setProductImage(productDto.getProductImage());
        Product savedProduct = productRepository.save(product);
        return mapper.map(savedProduct, ProductDto.class);
     }
@@ -72,6 +87,17 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public void deleteProduct(String productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product Not Found with Given Id"));
+       String fullPath = imagePath + product.getProductImage();
+        try{
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        }
+        catch(NoSuchFileException ex){
+            logger.info("Product image not found");
+        }
+        catch(IOException ex){
+            ex.printStackTrace();
+        }
         productRepository.delete(product);
     }
 
