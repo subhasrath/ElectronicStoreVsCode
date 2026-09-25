@@ -12,4 +12,10 @@ public interface ProductService{
     PageableResponse<ProductDto> searchProducts(int pageNumber, int pageSize, String sortDir, String sortBy, String subTitle);
     PageableResponse<ProductDto> showLiveProducts(int pageNumber, int pageSize, String sortDir, String sortBy);
     PageableResponse<ProductDto> showStockedProducts(int pageNumber, int pageSize, String sortDir, String sortBy);
+    // create product with category
+    ProductDto createWithCategory(ProductDto productDto, String categoryId);
+
+    ProductDto updateCategory(String productId, String categoryId);
+
+    PageableResponse<ProductDto> getAllOfCategory(String categoryId);
 }

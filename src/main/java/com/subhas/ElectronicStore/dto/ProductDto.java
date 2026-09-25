@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -33,4 +34,5 @@ public class ProductDto {
     private boolean live;
     private boolean stock;
     private String productImage;
+    private CategoryDto category;
 }
