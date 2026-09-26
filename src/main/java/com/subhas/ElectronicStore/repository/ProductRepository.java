@@ -7,9 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.subhas.ElectronicStore.entity.Category;
 import com.subhas.ElectronicStore.entity.Product;
-import java.util.List;
-
-
 
 public interface ProductRepository extends JpaRepository<Product, String>{
     Page<Product> findByProductNameContaining(String title, Pageable pageable);
@@ -18,6 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, String>{
 
     Page<Product> findByStock(boolean stock, Pageable pageable);
 
-    Page<Product> findByCategory(Category category);
+    Page<Product> findByCategory(Category category, Pageable pageable);
     
 }
