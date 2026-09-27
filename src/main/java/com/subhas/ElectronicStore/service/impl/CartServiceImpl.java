@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.AddItemToCartRequest;
 import com.subhas.ElectronicStore.dto.CartDto;
@@ -22,7 +23,7 @@ import com.subhas.ElectronicStore.repository.CartRepository;
 import com.subhas.ElectronicStore.repository.ProductRepository;
 import com.subhas.ElectronicStore.repository.UserRepository;
 import com.subhas.ElectronicStore.service.CartService;
-
+@Service 
 public class CartServiceImpl implements CartService{
 
     private final CartRepository cartRepository;
@@ -77,22 +78,27 @@ public class CartServiceImpl implements CartService{
         //check cart items if exixts
         List<CartItem> items = cart.getItems();
 
-        List<CartItem> updatedItems = items.stream().map(item -> {
+        items.stream().forEach(item -> {
 
             if(item.getProduct().getProductId().equals(productId)){
-                item.setQuantity(quantity);
-                item.setTotalPrice(quantity * product.getPrice());
+                int newQuantity = item.getQuantity() + quantity;
+                if (newQuantity > product.getQuantity()) {
+            throw new BadApiRequest(
+                    "Requested quantity exceeds available stock. Available stock: "
+                            + product.getQuantity()
+            );
+        }
+                item.setQuantity(newQuantity);
+                item.setTotalPrice(newQuantity * product.getDiscountedPrice());
                 updated.set(true);
             }
-            return item;
 
-        }).collect(Collectors.toList());
 
-        cart.setItems(updatedItems);
+        });
 
         // for new cart create items
         if(!updated.get()){
-            CartItem cartItem = CartItem.builder().quantity(quantity).totalPrice(quantity*product.getPrice())
+            CartItem cartItem = CartItem.builder().quantity(quantity).totalPrice(quantity*product.getDiscountedPrice())
                             .cart(cart).product(product).build();
             cart.getItems().add(cartItem);
         }
@@ -105,7 +111,6 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public void removeItemFromCart(String userId, int cartItem) {
-        
         CartItem items = cartItemRepository.findById(cartItem).orElseThrow(()-> new ResourceNotFoundException("Cart item not found"));
         cartItemRepository.delete(items);
     }
