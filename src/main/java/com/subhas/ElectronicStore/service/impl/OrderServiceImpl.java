@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.CreateOrderRequest;
 import com.subhas.ElectronicStore.dto.OrderDto;
@@ -28,7 +29,7 @@ import com.subhas.ElectronicStore.repository.CartRepository;
 import com.subhas.ElectronicStore.repository.OrderRepository;
 import com.subhas.ElectronicStore.repository.UserRepository;
 import com.subhas.ElectronicStore.service.OrderService;
-
+@Service 
 public class OrderServiceImpl implements OrderService{
     private final UserRepository userRepository;
 
@@ -69,7 +70,7 @@ public class OrderServiceImpl implements OrderService{
                     .user(user)
                     .build();
                     // orderItems, Amount
-        AtomicReference<Integer> orderAmount = new AtomicReference<>();
+        AtomicReference<Integer> orderAmount = new AtomicReference<>(0);
         List<OrderItem> orderItems = cartItems.stream().map(cartItem -> {
             // CartItem -> orderItem
             OrderItem orderItem = OrderItem.builder()
