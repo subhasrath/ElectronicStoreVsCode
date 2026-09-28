@@ -2,12 +2,13 @@ package com.subhas.ElectronicStore.service;
 
 import java.util.List;
 
+import com.subhas.ElectronicStore.dto.CreateOrderRequest;
 import com.subhas.ElectronicStore.dto.OrderDto;
 import com.subhas.ElectronicStore.payload.PageableResponse;
 
 public interface OrderService {
     // Create Order
-    OrderDto createOrder(OrderDto orderDto, String userId, String cartId);
+    OrderDto createOrder(CreateOrderRequest orderDto);
 
     // Remove Order
     void removeOrder(String orderId);
