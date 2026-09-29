@@ -21,7 +21,7 @@ public class OrderItemDto {
 
     private int totalPrice;
 
-    private ProductDto productDto;
+    private ProductDto product;
 
 
 }
