@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.subhas.ElectronicStore.dto.CreateOrderRequest;
 import com.subhas.ElectronicStore.dto.OrderDto;
-import com.subhas.ElectronicStore.dto.ProductDto;
 import com.subhas.ElectronicStore.payload.ApiResponseMessage;
 import com.subhas.ElectronicStore.payload.PageableResponse;
 import com.subhas.ElectronicStore.service.OrderService;
@@ -64,8 +63,4 @@ public class OrderController {
         ApiResponseMessage response = ApiResponseMessage.builder().message("Order removed succesfully").success(true).status(HttpStatus.OK).build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
-    
-    
-
 }
