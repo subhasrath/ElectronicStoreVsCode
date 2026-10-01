@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.subhas.ElectronicStore.dto.UserDto;
@@ -31,10 +32,12 @@ public class UserServiceImpl implements UserService {
     Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Value("${user.profile.image.path}")
@@ -45,6 +48,7 @@ public class UserServiceImpl implements UserService {
         // generate unique userId in String format
         userDto.setUserId(java.util.UUID.randomUUID().toString());
 
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         // dto -> entity
         User user = dtoToEntity(userDto);
         
