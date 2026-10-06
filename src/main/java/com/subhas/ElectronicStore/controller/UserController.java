@@ -50,7 +50,7 @@ public class UserController {
 
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @PostMapping()
+    @PostMapping("/register")
         public ResponseEntity<String> createUser(@Valid @RequestBody UserDto userDto) {
             userService.createUser(userDto);
             return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
