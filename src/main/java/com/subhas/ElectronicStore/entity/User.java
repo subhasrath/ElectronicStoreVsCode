@@ -17,8 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @Getter @Setter 
 @AllArgsConstructor 
-@NoArgsConstructor 
-@Builder 
+@NoArgsConstructor
+@Builder
 @Table(name="users")
 public class User implements UserDetails {
     @Id
@@ -36,8 +36,10 @@ public class User implements UserDetails {
     @Column(name="user_image_name", length=200)
     private String imageName;
     @OneToMany (mappedBy = "user",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @Builder.Default
     private List<Order> orders = new ArrayList<>();
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.

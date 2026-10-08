@@ -7,6 +7,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import com.subhas.ElectronicStore.entity.Role;
+import com.subhas.ElectronicStore.repository.RoleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
@@ -33,6 +36,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    @Value("${normal.role.id}")
+    private String normalRoleId;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -51,7 +59,10 @@ public class UserServiceImpl implements UserService {
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         // dto -> entity
         User user = dtoToEntity(userDto);
-        
+
+//        fetch role of normal and set it to user
+       Role role = roleRepository.findById(normalRoleId).get();
+        user.getRoles().add(role);
         User savedUser = userRepository.save(user);
         // entity -> dto
         UserDto savedUserDto = entityToDto(savedUser);
