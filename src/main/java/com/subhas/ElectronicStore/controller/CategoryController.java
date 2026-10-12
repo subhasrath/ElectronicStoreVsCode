@@ -61,12 +61,14 @@ public class CategoryController {
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
     // update
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping ("/update/{categoryId}")
     public ResponseEntity<CategoryDto> updateCategory(@Valid @RequestBody CategoryDto categoryDto, @RequestParam String categoryId){
         CategoryDto updatedCategory = categoryService.update(categoryDto, categoryId);
         return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
     }
     // delete
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping ("/delete/{categoryId}")
     public ResponseEntity<ApiResponseMessage> deleteCategory(@PathVariable String categoryId){
         categoryService.delete(categoryId);
@@ -78,6 +80,7 @@ public class CategoryController {
 
     }
     // get all
+
     @GetMapping ("/getAllCategory")
     public ResponseEntity<PageableResponse<CategoryDto>> getAllCategory(
         @RequestParam(value = "pageNumber", defaultValue = "0",required = false) int pageNumber, 

@@ -1,5 +1,6 @@
 package com.subhas.ElectronicStore.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +61,7 @@ public class UserController {
     public ResponseEntity<UserDto> getUser(@RequestParam String userId) {
         return new ResponseEntity<>(userService.getUserById(userId), HttpStatus.OK);
     }
-    
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getAll")
     public ResponseEntity<PageableResponse<UserDto>> getUser(
         @RequestParam(value = "pageNumber", defaultValue = "0",required = false) int pageNumber, 
@@ -69,17 +70,17 @@ public class UserController {
         @RequestParam(value = "sortDir", defaultValue = "asc",required = false) String sortDir) {
         return ResponseEntity.ok(userService.getAllUsers(pageNumber, pageSize, sortBy, sortDir));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search/{keywords}")
     public ResponseEntity<List<UserDto>> searchUserByName(@PathVariable String keywords) {
         return ResponseEntity.ok(userService.searchUser(keywords));
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/search/email/{email}")
     public ResponseEntity<UserDto> searchUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
-    
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping ("/delete/{userId}")
     public ResponseEntity<ApiResponseMessage> deleteUser(@PathVariable String userId) throws IOException {
         userService.deleteUser(userId);
@@ -89,7 +90,7 @@ public class UserController {
         .status(HttpStatus.OK)
         .build());
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable String userId) {
         UserDto updatedUser = userService.updateUser(userDto, userId);

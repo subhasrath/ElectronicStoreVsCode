@@ -38,9 +38,14 @@ public class User implements UserDetails {
     @OneToMany (mappedBy = "user",fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @Builder.Default
     private List<Order> orders = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private Cart cart;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
     /**
      * Returns the authorities granted to the user. Cannot return <code>null</code>.
      *
