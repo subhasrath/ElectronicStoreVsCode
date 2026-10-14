@@ -47,7 +47,8 @@ public class UserDto {
 
     @NotBlank (message = "about can not be empty!!")
     private String about;
-    
+
+    @NotBlank(message = "Image name cannot be blank")
     @ImageNameValid
     private String imageName;
 

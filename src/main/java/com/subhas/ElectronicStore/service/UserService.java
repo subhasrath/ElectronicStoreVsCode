@@ -2,9 +2,11 @@ package com.subhas.ElectronicStore.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 
 import com.subhas.ElectronicStore.dto.UserDto;
+import com.subhas.ElectronicStore.entity.User;
 import com.subhas.ElectronicStore.payload.PageableResponse;
 
 
@@ -23,6 +25,7 @@ public interface UserService {
 
     List<UserDto> searchUser(String keyword);
 
+    Optional<User> findUserByEmailOptional(String email);
     
 
 

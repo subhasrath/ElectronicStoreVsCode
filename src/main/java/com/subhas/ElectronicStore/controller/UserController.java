@@ -90,7 +90,7 @@ public class UserController {
         .status(HttpStatus.OK)
         .build());
     }
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto, @PathVariable String userId) {
         UserDto updatedUser = userService.updateUser(userDto, userId);

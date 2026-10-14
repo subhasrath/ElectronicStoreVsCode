@@ -6,6 +6,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import com.subhas.ElectronicStore.entity.Role;
 import com.subhas.ElectronicStore.repository.RoleRepository;
@@ -80,7 +81,8 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userDto.getEmail());
         user.setAbout(userDto.getAbout());
         user.setGender(userDto.getGender());
-        user.setPassword(userDto.getPassword());
+//        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setImageName(userDto.getImageName());
         User updatedUser = userRepository.save(user);
         return entityToDto(updatedUser);
@@ -134,7 +136,12 @@ public class UserServiceImpl implements UserService {
         List<User> user  = userRepository.findByNameContaining(keyword);
         return user.stream().map(this::entityToDto).toList();
     }
- 
+
+    @Override
+    public Optional<User> findUserByEmailOptional(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     private UserDto entityToDto(User savedUser) {
         // return UserDto.builder()
         //         .userId(savedUser.getUserId())

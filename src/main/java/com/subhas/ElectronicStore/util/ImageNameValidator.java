@@ -15,12 +15,12 @@ public class ImageNameValidator implements ConstraintValidator<ImageNameValid,St
     public boolean isValid(String value, ConstraintValidatorContext context) {
         logger.info("Message is from isValid : {}",value);
         // logic
-        if(value.isBlank()){
-            return false;
-        }
-        else{
+        if (value == null) {
             return true;
         }
+
+        // reject blank / empty strings
+        return !value.isBlank();
     }
 
 }
