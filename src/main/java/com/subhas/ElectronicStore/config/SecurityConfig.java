@@ -84,26 +84,26 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
-    public FilterRegistrationBean corsFilter(){
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(Arrays.asList("https://domain1.com","http://localhost:4200"));
-//        configuration.addAllowedOrigin("*");
-        configuration.addAllowedMethod("Authorization");
-        configuration.addAllowedMethod("Content-Type");
-        configuration.addAllowedMethod("Accept");
-        configuration.addAllowedMethod("GET");
-        configuration.addAllowedMethod("POST");
-        configuration.addAllowedMethod("PUT");
-        configuration.addAllowedMethod("DELETE");
-        configuration.addAllowedMethod("OPTIONS");
-        configuration.setMaxAge(3600L);
-        source.registerCorsConfiguration("/**",configuration);
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new CorsFilter(source));
-        filterRegistrationBean.setOrder(-5);
-        return  filterRegistrationBean;
-    }
+//    @Bean
+//    public FilterRegistrationBean corsFilter(){
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowCredentials(true);
+//        configuration.setAllowedOrigins(Arrays.asList("https://domain1.com","http://localhost:4200"));
+////        configuration.addAllowedOrigin("*");
+//        configuration.addAllowedMethod("Authorization");
+//        configuration.addAllowedMethod("Content-Type");
+//        configuration.addAllowedMethod("Accept");
+//        configuration.addAllowedMethod("GET");
+//        configuration.addAllowedMethod("POST");
+//        configuration.addAllowedMethod("PUT");
+//        configuration.addAllowedMethod("DELETE");
+//        configuration.addAllowedMethod("OPTIONS");
+//        configuration.setMaxAge(3600L);
+//        source.registerCorsConfiguration("/**",configuration);
+//        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new CorsFilter(source));
+//        filterRegistrationBean.setOrder(-5);
+//        return  filterRegistrationBean;
+//    }
 }
