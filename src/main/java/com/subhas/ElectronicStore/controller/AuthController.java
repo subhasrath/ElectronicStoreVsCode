@@ -3,7 +3,6 @@ package com.subhas.ElectronicStore.controller;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.subhas.ElectronicStore.dto.JwtRequest;
 import com.subhas.ElectronicStore.dto.JwtResponse;
@@ -21,21 +20,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
-//@CrossOrigin("*")
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -51,63 +51,117 @@ public class AuthController {
     @Autowired
     private JwtHelper jwtHelper;
 
-    private Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    @Value("${googleClientId}")
+    @Value("${GOOGLE_CLIENT_ID}")
     private String googleClientId;
 
-    private String newPassword;
-
     @GetMapping("/current")
-    public ResponseEntity<UserDto> getCurrentUser(Principal principal){
+    public ResponseEntity<UserDto> getCurrentUser(Principal principal) {
         String name = principal.getName();
-        return new ResponseEntity<>(mapper.map( userDetailsService.loadUserByUsername(name), UserDto.class), HttpStatus.OK);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(name);
+        return new ResponseEntity<>(mapper.map(userDetails, UserDto.class), HttpStatus.OK);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request){
+    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
         this.doAuthenticate(request.getEmail(), request.getPassword());
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = this.jwtHelper.generateToken(userDetails);
         UserDto userDto = mapper.map(userDetails, UserDto.class);
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
-                .user(userDto).build();
-        return new ResponseEntity<>(response,HttpStatus.OK);
+                .user(userDto)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private void doAuthenticate(String email, String password) {
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(email, password);
         try {
             manager.authenticate(authentication);
-        }catch (BadApiRequest e){
+        } catch (BadApiRequest e) {
             throw new BadApiRequest("Invalid email or password");
         }
     }
+
     @PostMapping("/google")
-    public ResponseEntity<JwtResponse> loginWithGoogle(@RequestBody Map<String,Object> data) throws IOException {
-        String idToken = data.get("idToken").toString();
+    public ResponseEntity<JwtResponse> loginWithGoogle(@RequestBody Map<String, Object> data)
+            throws IOException, GeneralSecurityException {
+        Object rawIdToken = data.get("idToken");
+        if (rawIdToken == null || rawIdToken.toString().isBlank()) {
+            throw new BadApiRequest("idToken is required");
+        }
+
+        String idToken = rawIdToken.toString().trim();
         NetHttpTransport netHttpTransport = new NetHttpTransport();
         JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
-        GoogleIdTokenVerifier.Builder verifier = new GoogleIdTokenVerifier
-                .Builder(netHttpTransport, jacksonFactory).setAudience(Collections.singleton(googleClientId));
-        GoogleIdToken googleIdToken = GoogleIdToken.parse(verifier.getJsonFactory(),idToken);
+
+        // Log BEFORE verify() so we see claims even if verification returns null
+        GoogleIdToken parsedToken = GoogleIdToken.parse(jacksonFactory, idToken);
+        if (parsedToken != null) {
+            logger.info("Token aud: {}, iss: {}, exp: {}, iat: {}",
+                    parsedToken.getPayload().getAudience(),
+                    parsedToken.getPayload().getIssuer(),
+                    parsedToken.getPayload().getExpirationTimeSeconds(),
+                    parsedToken.getPayload().getIssuedAtTimeSeconds());
+        }
+        logger.info("Configured googleClientId: [{}], nowEpochSec: {}",
+                googleClientId,
+                System.currentTimeMillis() / 1000L);
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(netHttpTransport, jacksonFactory)
+                .setAudience(Collections.singletonList(googleClientId.trim()))
+                .build();
+
+        GoogleIdToken googleIdToken = verifier.verify(idToken);
+        if (googleIdToken == null) {
+            throw new BadApiRequest("Invalid or expired Google ID token");
+        }
+
         GoogleIdToken.Payload payload = googleIdToken.getPayload();
-        logger.info("Payload : {}", payload);
+        logger.info("Verified Google Payload : {}", payload);
 
         String email = payload.getEmail();
-        User user = null;
-        user = userService.findUserByEmailOptional(email).orElse(null);
-        if(user==null){
-            user = this.saveUser(email,data.get("name").toString(),data.get("photoUrl").toString());
+        if (email == null || email.isBlank()) {
+            throw new BadApiRequest("Email is missing in Google token");
         }
-        ResponseEntity<JwtResponse> jwtResponseResponseEntity = this.login(JwtRequest.builder().email(user.getEmail()).password(newPassword).build());
-        return jwtResponseResponseEntity;
+
+        String name = payload.get("name") != null
+                ? payload.get("name").toString()
+                : (data.get("name") != null ? data.get("name").toString() : email);
+
+        String photoUrl = payload.get("picture") != null
+                ? payload.get("picture").toString()
+                : (data.get("photoUrl") != null ? data.get("photoUrl").toString() : "");
+
+        User user = userService.findUserByEmailOptional(email).orElse(null);
+        if (user == null) {
+            user = this.saveUser(email, name, photoUrl);
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String token = this.jwtHelper.generateToken(userDetails);
+        UserDto userDto = mapper.map(user, UserDto.class);
+
+        JwtResponse response = JwtResponse.builder()
+                .jwtToken(token)
+                .user(userDto)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private User saveUser(String email, String name, String photoUrl) {
-        UserDto newUser = UserDto.builder().name(name).email(email).password(newPassword).imageName(photoUrl).roles(new HashSet<>()).build();
-        UserDto user = userService.createUser(newUser);
-        return mapper.map(user,User.class);
+        UserDto newUser = UserDto.builder()
+                .name(name)
+                .email(email)
+                .password(UUID.randomUUID().toString())
+                .imageName(photoUrl)
+                .roles(new HashSet<>())
+                .build();
+        UserDto createdUser = userService.createUser(newUser);
+        return mapper.map(createdUser, User.class);
     }
 }

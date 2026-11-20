@@ -53,7 +53,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/users/register","/api/product/getAll","/api/users/getAll").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/google","/api/users/register","/api/product/getAll","/api/users/getAll").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
@@ -91,7 +91,7 @@ public class SecurityConfig {
 //        CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.setAllowCredentials(true);
 //        configuration.setAllowedOrigins(Arrays.asList("https://domain1.com","http://localhost:4200"));
-////        configuration.addAllowedOrigin("*");
+//       configuration.addAllowedOrigin("*");
 //        configuration.addAllowedMethod("Authorization");
 //        configuration.addAllowedMethod("Content-Type");
 //        configuration.addAllowedMethod("Accept");
