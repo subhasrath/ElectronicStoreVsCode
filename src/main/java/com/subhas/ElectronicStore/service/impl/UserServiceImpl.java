@@ -1,0 +1,173 @@
+package com.subhas.ElectronicStore.service.impl;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
+
+import com.subhas.ElectronicStore.entity.Role;
+import com.subhas.ElectronicStore.repository.RoleRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.subhas.ElectronicStore.dto.UserDto;
+import com.subhas.ElectronicStore.entity.User;
+import com.subhas.ElectronicStore.exception.ResourceNotFoundException;
+import com.subhas.ElectronicStore.helper.Helper;
+import com.subhas.ElectronicStore.payload.PageableResponse;
+import com.subhas.ElectronicStore.repository.UserRepository;
+import com.subhas.ElectronicStore.service.UserService;
+
+
+@Service 
+public class UserServiceImpl implements UserService {
+    Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+    @Value("${normal.role.id}")
+    private String normalRoleId;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Value("${user.profile.image.path}")
+    private String imagePath;
+
+    @Override
+    public UserDto createUser(UserDto userDto) {
+        // generate unique userId in String format
+        userDto.setUserId(java.util.UUID.randomUUID().toString());
+
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        // dto -> entity
+        User user = dtoToEntity(userDto);
+
+//        fetch role of normal and set it to user
+       Role role = roleRepository.findById(normalRoleId).get();
+        user.getRoles().add(role);
+        User savedUser = userRepository.save(user);
+        // entity -> dto
+        UserDto savedUserDto = entityToDto(savedUser);
+        
+        return savedUserDto;
+       
+    }
+
+
+
+    @Override
+    public UserDto updateUser(UserDto userDto, String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setAbout(userDto.getAbout());
+        user.setGender(userDto.getGender());
+//        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setImageName(userDto.getImageName());
+        User updatedUser = userRepository.save(user);
+        return entityToDto(updatedUser);
+    
+    }
+
+    @Override
+    public void deleteUser(String userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
+        String fullPath = imagePath + user.getImageName();
+        try{
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        }
+        catch(NoSuchFileException ex){
+            logger.info("User image not found");
+        }
+        catch(IOException ex){
+            ex.printStackTrace();
+        }
+        
+        userRepository.delete(user);
+    }
+
+    @Override
+    public UserDto getUserById(String userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not Found with Given ID"));
+        return entityToDto(user);
+    }
+
+    @Override
+    public PageableResponse<UserDto> getAllUsers(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        
+        Page <User> page = userRepository.findAll(pageable);
+
+        PageableResponse<UserDto> response =  Helper.getPageableResponse(page, UserDto.class);
+        return response;
+    }
+
+    @Override
+    public UserDto getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not Found with given Email"));
+        return entityToDto(user);
+    }
+
+    @Override
+    public List<UserDto> searchUser(String keyword) {
+        List<User> user  = userRepository.findByNameContaining(keyword);
+        return user.stream().map(this::entityToDto).toList();
+    }
+
+    @Override
+    public Optional<User> findUserByEmailOptional(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    private UserDto entityToDto(User savedUser) {
+        // return UserDto.builder()
+        //         .userId(savedUser.getUserId())
+        //         .name(savedUser.getName())
+        //         .email(savedUser.getEmail())
+        //         .password(savedUser.getPassword())
+        //         .gender(savedUser.getGender())
+        //         .about(savedUser.getAbout())
+        //         .imageName(savedUser.getImageName())
+        //         .build();
+        return modelMapper.map(savedUser, UserDto.class);
+    }
+
+    private User dtoToEntity(UserDto userDto) {
+        // return User.builder()
+        //         .userId(userDto.getUserId())
+        //         .name(userDto.getName())
+        //         .email(userDto.getEmail())
+        //         .password(userDto.getPassword())
+        //         .gender(userDto.getGender())
+        //         .about(userDto.getAbout())
+        //         .imageName(userDto.getImageName())
+        //         .build();
+        return modelMapper.map(userDto, User.class);
+    }
+
+    
+
+}
